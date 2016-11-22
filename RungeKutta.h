@@ -44,7 +44,7 @@ class RungeKutta { //generic class, can take complex numbers, multivariate funct
 					initialValues[j]=initialValues[j]+(k1[j]+k2[j]*2+k3[j]*2+k4[j])*sixthh;
 				}
 			}
-			return std::move(initialValues);
+			return initialValues;
 		}
 };
 #endif
