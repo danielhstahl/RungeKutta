@@ -5,10 +5,10 @@
 #include <vector>
 #include <unordered_map>
 #include <iostream> //debugging
+#include "FunctionalUtilities.h" //this is a personal repository
 
-
-class RungeKutta { //generic class, can take complex numbers etc
-	private:
+namespace rungekutta { //generic class, can take complex numbers etc
+	/*private:
 		int numSteps;
 		double t;
 		double h;
@@ -21,30 +21,74 @@ class RungeKutta { //generic class, can take complex numbers etc
 			h=t/numSteps;
 			hlfh=h*.5;
 			sixthh=h/6.0;
-		}
-		template<typename T, typename FN>
-		std::vector<T> compute(FN&& fn, const std::vector<T>& initialValues){
-			int n=initialValues.size();
-			std::vector<T> newVal(initialValues); //temporarily hold values
-			for(int i=0; i<numSteps; i++){
-				std::vector<T> k1=fn(h*i, newVal);
-				for(int j=0; j<n;++j){
-					newVal[j]=newVal[j]+k1[j]*hlfh;
-				}
-				std::vector<T> k2=fn(h*i+hlfh, newVal);
-				for(int j=0; j<n;++j){
-					newVal[j]=newVal[j]+k2[j]*hlfh-k1[j]*hlfh;
-				}
-				std::vector<T> k3=fn(h*i+hlfh, newVal);
-				for(int j=0; j<n;++j){
-					newVal[j]=newVal[j]+k3[j]*h-k2[j]*hlfh;
-				}
-				std::vector<T> k4=fn(h*i+h, newVal);
-				for(int j=0; j<n;++j){
-					newVal[j]=newVal[j]+(k1[j]+k2[j]*2+k3[j]*2+k4[j])*sixthh;
-				}
+		}*/
+	template<typename T, typename FN>
+	std::vector<T> compute(const auto& t, const auto& numSteps, const std::vector<T>& initialValues, FN&& fn){
+		auto h=t/numSteps;
+		auto hlfh=h*.5;
+		auto sixthh=h/6.0;
+		int n=initialValues.size();
+		std::vector<T> newVal(initialValues); //temporarily hold values
+		for(int i=0; i<n; ++i){
+			//std::vector<T> k1=fn(h*i, newVal);
+
+			//initialValues
+
+			std::vector<T> k1=fn(h*i, newVal);
+			for(int j=0; j<n;++j){
+				newVal[j]=newVal[j]+k1[j]*hlfh;
 			}
-			return newVal;
+			std::vector<T> k2=fn(h*i+hlfh, newVal);
+			for(int j=0; j<n;++j){
+				newVal[j]=newVal[j]+k2[j]*hlfh-k1[j]*hlfh;
+			}
+			std::vector<T> k3=fn(h*i+hlfh, newVal);
+			for(int j=0; j<n;++j){
+				newVal[j]=newVal[j]+k3[j]*h-k2[j]*hlfh;
+			}
+			std::vector<T> k4=fn(h*i+h, newVal);
+			for(int j=0; j<n;++j){
+				newVal[j]=newVal[j]+sixthh*(k1[j]+2.0*k2[j]+2.0*k3[j]+k4[j]);
+			}
 		}
-};
+		return newVal;
+	}
+	/*auto rk4(auto f(const auto&, const auto&)){
+		return
+		[f](const auto& t, const auto& y, const auto& dt ) { 
+			return [t,y,dt,f](auto&& dy1) { 
+				return [t,y,dt,f,dy1](auto&& dy2) { 
+					return [t,y,dt,f,dy1,dy2](auto&& dy3) { 
+						return [t,y,dt,f,dy1,dy2,dy3](auto&& dy4){ 
+							futilities::for_each_parallel(dy4, [&](const auto& val, const auto& index){
+								return (dy1[index]+2*dy2[index]+2*dy3[index]+val)/6;
+							});
+							
+						} (f( t+dt  , futilities::for_each_parallel(dy3, [&]		(const auto& val, const auto& index){
+								return y[index]+val*dt;
+							})  ));
+							
+							
+					} (f( t+dt/2, futilities::for_each_parallel(dy2, 
+							[&](const auto& val, const auto& index){
+								return y[index]+dt*val/2;
+							}) 
+						));
+				} (f( t+dt/2, futilities::for_each_parallel(dy1, [&](const auto& val, const auto& index){
+						return y[index]+dt*val/2;
+							}))          
+					);
+			} (	f( t , y ) );
+		};
+	}
+
+	auto compute(const auto& t, const auto& numSteps, auto&& initialValues, auto&& fn) {
+		auto dy =rk4(fn);
+		auto h=t/numSteps;
+		for(int i=0;i<numSteps;++i){
+			initialValues=dy(h*i, initialValues, h);
+		}
+		return std::move(initialValues);
+	}*/
+}
 #endif
