@@ -29,7 +29,7 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		auto sixthh=h/6.0;
 		int n=initialValues.size();
 		std::vector<T> newVal(initialValues); //temporarily hold values
-		for(int i=0; i<n; ++i){
+		for(int i=0; i<numSteps; ++i){
 			//std::vector<T> k1=fn(h*i, newVal);
 
 			//initialValues
@@ -53,6 +53,39 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		}
 		return newVal;
 	}
+
+	/*auto functionalRG(auto& fn){
+		return [fn](const auto& t, const auto& h, const auto& hlfh, auto&& y){
+			return [&](auto& dy1){
+				return [&](auto& dy2){
+					return [&](auto& dy3){
+						return [&](auto&& dy4){
+							return futilities::for_each_parallel(dy4, [&](const auto& val, const auto& index){
+								return (dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)/6.0;
+							});
+						}(fn(t+h, futilities::for_each_parallel(dy3, [&](const auto& val, const auto& index){return y[index]+val*h;})));
+					}(fn(t+hlfh, futilities::for_each_parallel(dy2, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
+				}(fn(t+hlfh, futilities::for_each_parallel(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
+			}(fn(t, y)); //evaluates with this argument
+		};
+	}
+	
+
+	auto computeFunctional(const auto& t, const auto& numSteps, const auto& initialValues, auto& fn){
+		auto h=t/numSteps;
+		auto hlfh=h*.5;
+		auto sixthh=h/6.0;
+		//int n=initialValues.size();
+		auto newVal=initialValues; //temporarily hold values
+		auto fnc=functionalRG(fn);
+		for(int i=0; i<numSteps; ++i){
+			newVal=fnc(i*h, h, hlfh, newVal);
+		}
+		return newVal;
+	}*/
+
+
+
 	/*auto rk4(auto f(const auto&, const auto&)){
 		return
 		[f](const auto& t, const auto& y, const auto& dt ) { 
