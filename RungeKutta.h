@@ -54,74 +54,43 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		return newVal;
 	}
 
-	/*auto functionalRG(auto& fn){
-		return [fn](const auto& t, const auto& h, const auto& hlfh, auto&& y){
-			return [&](auto& dy1){
-				return [&](auto& dy2){
-					return [&](auto& dy3){
+	/*auto functionalRG(auto&& fn){
+		return [&](const auto& t, const auto& h, const auto& hlfh, auto&& y){
+			return [&](auto&& dy1){
+				return [&](auto&& dy2){
+					return [&](auto&& dy3){
 						return [&](auto&& dy4){
 							return futilities::for_each_parallel(dy4, [&](const auto& val, const auto& index){
-								return (dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)/6.0;
+								return y[index]+(dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)/6.0;
 							});
 						}(fn(t+h, futilities::for_each_parallel(dy3, [&](const auto& val, const auto& index){return y[index]+val*h;})));
 					}(fn(t+hlfh, futilities::for_each_parallel(dy2, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
 				}(fn(t+hlfh, futilities::for_each_parallel(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
 			}(fn(t, y)); //evaluates with this argument
 		};
-	}
-	
-
-	auto computeFunctional(const auto& t, const auto& numSteps, const auto& initialValues, auto& fn){
+	}*/
+	template<typename Number>
+	std::vector<Number> computeFunctional(const auto& t, const auto& numSteps, const std::vector<Number>& initialValues, auto&& fn){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
-		auto sixthh=h/6.0;
-		//int n=initialValues.size();
-		auto newVal=initialValues; //temporarily hold values
-		auto fnc=functionalRG(fn);
-		for(int i=0; i<numSteps; ++i){
-			newVal=fnc(i*h, h, hlfh, newVal);
-		}
-		return newVal;
-	}*/
-
-
-
-	/*auto rk4(auto f(const auto&, const auto&)){
-		return
-		[f](const auto& t, const auto& y, const auto& dt ) { 
-			return [t,y,dt,f](auto&& dy1) { 
-				return [t,y,dt,f,dy1](auto&& dy2) { 
-					return [t,y,dt,f,dy1,dy2](auto&& dy3) { 
-						return [t,y,dt,f,dy1,dy2,dy3](auto&& dy4){ 
-							futilities::for_each_parallel(dy4, [&](const auto& val, const auto& index){
-								return (dy1[index]+2*dy2[index]+2*dy3[index]+val)/6;
+		auto myResult=initialValues;
+		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
+			return [&](const auto& dy1){
+				return [&](const auto& dy2){
+					return [&](const auto& dy3){
+						return [&](const auto& dy4){
+							return futilities::for_each_parallel_copy(dy4, [&](const auto& val, const auto& index){
+								return y[index]+h*(dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)/6.0;
 							});
-							
-						} (f( t+dt  , futilities::for_each_parallel(dy3, [&]		(const auto& val, const auto& index){
-								return y[index]+val*dt;
-							})  ));
-							
-							
-					} (f( t+dt/2, futilities::for_each_parallel(dy2, 
-							[&](const auto& val, const auto& index){
-								return y[index]+dt*val/2;
-							}) 
-						));
-				} (f( t+dt/2, futilities::for_each_parallel(dy1, [&](const auto& val, const auto& index){
-						return y[index]+dt*val/2;
-							}))          
-					);
-			} (	f( t , y ) );
+						}(fn(t+h, futilities::for_each_parallel_copy(dy3, [&](const auto& val, const auto& index){return y[index]+val*h;})));
+					}(fn(t+hlfh, futilities::for_each_parallel_copy(dy2, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
+				}(fn(t+hlfh, futilities::for_each_parallel_copy(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
+			}(fn(t, y)); //evaluates with this argument
 		};
-	}
-
-	auto compute(const auto& t, const auto& numSteps, auto&& initialValues, auto&& fn) {
-		auto dy =rk4(fn);
-		auto h=t/numSteps;
 		for(int i=0;i<numSteps;++i){
-			initialValues=dy(h*i, initialValues, h);
+			myResult=fnc(i*h, h, hlfh, myResult);
 		}
-		return std::move(initialValues);
-	}*/
+		return myResult;
+	}
 }
 #endif
