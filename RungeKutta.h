@@ -73,7 +73,7 @@ namespace rungekutta { //generic class, can take complex numbers etc
 	std::vector<Number> computeFunctional(const auto& t, const auto& numSteps, const std::vector<Number>& initialValues, auto&& fn){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
-		auto myResult=initialValues;
+		//auto myResult=initialValues;
 		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
 			return [&](const auto& dy1){
 				return [&](const auto& dy2){
@@ -87,10 +87,9 @@ namespace rungekutta { //generic class, can take complex numbers etc
 				}(fn(t+hlfh, futilities::for_each_parallel_copy(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
 			}(fn(t, y)); //evaluates with this argument
 		};
-		for(int i=0;i<numSteps;++i){
-			myResult=fnc(i*h, h, hlfh, myResult);
-		}
-		return myResult;
+		return futilities::recurse(numSteps, initialValues, [&](const auto& val, const auto& index){
+			return fnc(index*h, h, hlfh, val);
+		});
 	}
 }
 #endif
