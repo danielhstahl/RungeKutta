@@ -22,8 +22,10 @@ namespace rungekutta { //generic class, can take complex numbers etc
 			hlfh=h*.5;
 			sixthh=h/6.0;
 		}*/
-	template<typename T, typename FN>
-	std::vector<T> compute(const auto& t, const auto& numSteps, const std::vector<T>& initialValues, FN&& fn){
+	
+	/**THIS IS OUTDATED*/
+	template<typename T, typename Number, typename Index, typename FN>
+	std::vector<T> compute(const Number& t, const Index& numSteps, const std::vector<T>& initialValues, FN&& fn){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
@@ -69,8 +71,13 @@ namespace rungekutta { //generic class, can take complex numbers etc
 			}(fn(t, y)); //evaluates with this argument
 		};
 	}*/
-	template<typename Number>
-	std::vector<Number> computeFunctional(const auto& t, const auto& numSteps, const std::vector<Number>& initialValues, auto&& fn){
+	template<typename Number, typename Number1, typename Index, typename FN>
+	std::vector<Number> computeFunctional(
+		const Number1& t, 
+		const Index& numSteps, 
+		const std::vector<Number>& initialValues, 
+		FN&& fn
+	){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		//auto myResult=initialValues;
