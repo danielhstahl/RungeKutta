@@ -19,17 +19,18 @@ TEST_CASE("Test functionalRG", "[RG]"){
               << " milliseconds\n";
 	REQUIRE(initialValues[0]==Approx(exp(2.0)));
 }
-TEST_CASE("Test standard RG", "[RG]"){
+/*TEST_CASE("Test standard RG", "[RG]"){
 	double t=2.0;
-	int numSteps=1024;
+	int numSteps=1024; 
 	std::vector<double> initialValues={1.0, 1.0};
 	auto t1 = std::chrono::high_resolution_clock::now();
-	initialValues=rungekutta::compute(t, numSteps, initialValues, [](const auto& t, const auto& y){
+	initialValues=rungekutta::compute(t, numSteps, initialValues, [](const auto& t, const auto& y){  
 		return std::vector<double>({y[0]*t, y[1]*t});
-	});   
+	});    
 	auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "test standardRG took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count()
               << " milliseconds\n";
 	REQUIRE(initialValues[0]==Approx(exp(2.0)));
 }
+*/
