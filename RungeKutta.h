@@ -6,6 +6,10 @@
 #include <unordered_map>
 #include <iostream> //debugging
 #include "FunctionalUtilities.h" //this is a personal repository
+#include <type_traits>
+template<typename T> struct is_vector : public std::false_type {};
+
+template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type {};
 
 namespace rungekutta { //generic class, can take complex numbers etc
 	/*template<typename T, typename FN>
@@ -68,8 +72,10 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		}
 		return initialValues;
 	}*/
-	template<typename Number>
-	std::vector<Number> computeFunctional(const auto& t, const auto& numSteps, const std::vector<Number>& initialValues, auto&& fn){
+
+
+	template<typename Number, typename Number1, typename Index, typename FN>
+	std::vector<Number> computeFunctional(const Number1& t, const Index& numSteps, const std::vector<Number>& initialValues, FN&& fn, std::true_type){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
@@ -90,6 +96,35 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		return futilities::recurse(numSteps, initialValues, [&](const auto& val, const auto& index){
 			return fnc(index*h, h, hlfh, val);
 		});
+	}
+
+
+
+	template<typename Number, typename Number1, typename Index, typename FN>
+	Number computeFunctional(const Number1& t, const Index& numSteps, const Number& initialValues, FN&& fn, std::false_type){
+		auto h=t/numSteps;
+		auto hlfh=h*.5;
+		auto sixthh=h/6.0;
+		auto myResult=initialValues;
+		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
+			return [&](const auto& dy1){
+				return [&](const auto& dy2){
+					return [&](const auto& dy3){
+						return [&](const auto& dy4){
+							return y+(dy1+2.0*dy2+2.0*dy3+dy4)*sixthh;
+						}(fn(t+h, y+dy3*h));
+					}(fn(t+hlfh, y+dy2*hlfh));
+				}(fn(t+hlfh, y+dy1*hlfh));
+			}(fn(t, y)); //evaluates with this argument
+		};
+		return futilities::recurse(numSteps, initialValues, [&](const auto& val, const auto& index){
+			return fnc(index*h, h, hlfh, val);
+		});
+	}
+
+	template<typename Number, typename Number1, typename Index, typename FN>
+	Number computeFunctional(const Number1& t, const Index& numSteps, const Number& initialValues, FN&& fn){
+		return computeFunctional(t, numSteps, initialValues, fn, is_vector<Number>{});
 	}
 }
 #endif
