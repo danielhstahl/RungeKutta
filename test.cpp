@@ -3,7 +3,7 @@
 #include "RungeKutta.h"
 #include <vector>
 #include <chrono>
-
+ 
 TEST_CASE("Test functionalRG", "[RG]"){
 	double t=2.0;
 	int numSteps=1024;
