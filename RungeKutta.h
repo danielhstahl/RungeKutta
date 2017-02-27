@@ -17,31 +17,6 @@ template<typename T, typename A> struct is_vector<std::vector<T, A>> : public st
 
 namespace rungekutta { //generic class, can take complex numbers etc
 
-	/*template<typename Number, typename Number1, typename Index, typename FN>
-	std::vector<Number> computeFunctional(const Number1& t, const Index& numSteps, const std::vector<Number>& initialValues, FN&& fn, std::true_type){
-		auto h=t/numSteps;
-		auto hlfh=h*.5;
-		auto sixthh=h/6.0;
-		auto myResult=initialValues;
-		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
-			return [&](const auto& dy1){
-				return [&](const auto& dy2){
-					return [&](const auto& dy3){
-						return [&](const auto& dy4){
-							return futilities::for_each_parallel_copy(dy4, [&](const auto& val, const auto& index){
-								return y[index]+(dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)*sixthh;
-							});
-						}(fn(t+h, futilities::for_each_parallel_copy(dy3, [&](const auto& val, const auto& index){return y[index]+val*h;})));
-					}(fn(t+hlfh, futilities::for_each_parallel_copy(dy2, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
-				}(fn(t+hlfh, futilities::for_each_parallel_copy(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
-			}(fn(t, y)); //evaluates with this argument
-		};
-		return futilities::recurse(numSteps, initialValues, [&](const auto& val, const auto& index){
-			return fnc(index*h, h, hlfh, val);
-		});
-	}*/
-
-
 	template<typename Number, typename Number1, typename Index, typename FN>
 	std::vector<Number> computeFunctional(const Number1& t, const Index& numSteps, const std::vector<Number>& initialValues, FN&& fn, std::true_type){
 		auto h=t/numSteps;
