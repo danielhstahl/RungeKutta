@@ -22,7 +22,6 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
-		auto myResult=initialValues;
 		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
 			return [&](auto&& dy1){
 				return [&](auto&& dy2){
@@ -47,7 +46,6 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
-		auto myResult=initialValues;
 		auto fnc=[&](const auto& t, const auto& h, const auto& hlfh, const auto& y){
 			return [&](const auto& dy1){
 				return [&](const auto& dy2){
