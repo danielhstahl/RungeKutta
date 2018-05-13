@@ -27,7 +27,7 @@ namespace rungekutta { //generic class, can take complex numbers etc
 				return [&](auto&& dy2){
 					return [&](auto&& dy3){
 						return [&](auto&& dy4){
-							return futilities::for_each_parallel(dy4, [&](const auto& val, const auto& index){
+							return futilities::for_each_parallel(std::move(dy4), [&](const auto& val, const auto& index){
 								return y[index]+(dy1[index]+2.0*dy2[index]+2.0*dy3[index]+val)*sixthh;
 							});
 						}(fn(t+h, futilities::for_each_parallel_copy(dy3, [&](const auto& val, const auto& index){return y[index]+val*h;})));
