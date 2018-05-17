@@ -18,7 +18,7 @@ template<typename T, typename A> struct is_vector<std::vector<T, A>> : public st
 namespace rungekutta { //generic class, can take complex numbers etc
 
 	template<typename Number, typename Number1, typename Index, typename FN, typename ...Args> ///FN is a type that takes t, ...args and returns tuple
-	auto compute_efficient_2d(const Number1& t, const Index& numSteps, FN&& fn, std::vector<Number>&& initialValues){
+	auto compute_efficient_2d(const Number1& t, const Index& numSteps, std::vector<Number>&& initialValues, FN&& fn){
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
