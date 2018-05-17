@@ -22,14 +22,18 @@ namespace rungekutta { //generic class, can take complex numbers etc
 		auto h=t/numSteps;
 		auto hlfh=h*.5;
 		auto sixthh=h/6.0;
-		auto fnc=[fn=std::move(fn)](const auto& t, const auto& h, const auto& hlfh, const auto& vals){
+		auto fnc=[fn=std::move(fn)](const auto& t, const auto& h, const auto& hlfh, auto& vals){
 			auto firstResult=fn(t, vals[0], vals[1]);
 			auto secondResult=fn(t+hlfh, vals[0]+firstResult[0]*hlfh, vals[1]+firstResult[1]*hlfh);
 			auto thirdResult=fn(t+hlfh, vals[0]+secondResult[0]*hlfh, vals[1]+secondResult[1]*hlfh);
 			auto fourthResult=fn(t+h, vals[0]+thirdResult[0]*h, vals[1]+thirdResult[1]*h);
+			vals[0]=vals[0]+(firstResult[0]+2.0*secondResult[0]+2.0*thirdResult[0]+fourthResults[0])*sixthh;
+			vals[1]=vals[1]+(firstResult[1]+2.0*secondResult[1]+2.0*thirdResult[1]+fourthResults[1])*sixthh;
 		};
-		return futilities::recurse_move(numSteps, std::move(initialValues), [&](const auto& val, const auto& index){
-			return fnc(index*h, h, hlfh, val);
+		return futilities::recurse_move(numSteps, std::move(initialValues), [&](auto&& val, const auto& index){
+			//modifies val
+			fnc(index*h, h, hlfh, val);
+			return std::move(val);
 		});
 
 	}
@@ -52,7 +56,7 @@ namespace rungekutta { //generic class, can take complex numbers etc
 				}(fn(t+hlfh, futilities::for_each_parallel_copy(dy1, [&](const auto& val, const auto& index){return y[index]+val*hlfh;})));
 			}(fn(t, y)); //evaluates with this argument
 		};
-		return futilities::recurse_move(numSteps, std::move(initialValues), [&](const auto& val, const auto& index){
+		return futilities::recurse_move(numSteps, std::move(initialValues), [&](auto&& val, const auto& index){
 			return fnc(index*h, h, hlfh, val);
 		});
 	}
@@ -74,7 +78,7 @@ namespace rungekutta { //generic class, can take complex numbers etc
 				}(fn(t+hlfh, y+dy1*hlfh));
 			}(fn(t, y)); //evaluates with this argument
 		};
-		return futilities::recurse_move(numSteps, std::move(initialValues), [&](const auto& val, const auto& index){
+		return futilities::recurse_move(numSteps, std::move(initialValues), [&](auto&& val, const auto& index){
 			return fnc(index*h, h, hlfh, val);
 		});
 	}

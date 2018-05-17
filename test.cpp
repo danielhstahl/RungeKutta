@@ -25,8 +25,8 @@ TEST_CASE("Test functionalRG 2d", "[RG]"){
 	std::vector<double> initialValues={1.0, 1.0};
 
 	auto t1 = std::chrono::high_resolution_clock::now();
-	initialValues=rungekutta::compute_efficient_2d(t, numSteps, std::move(initialValues), [](const auto& t, const auto& y){
-		return std::vector<double>({y[0]*t, y[1]*t});
+	initialValues=rungekutta::compute_efficient_2d(t, numSteps, std::move(initialValues), [](const auto& t, const auto& y1, const auto& y2){
+		return std::vector<double>({y1*t, y2*t});
 	});   
 	auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "test functionalRG took "
