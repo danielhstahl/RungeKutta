@@ -17,6 +17,23 @@ template<typename T, typename A> struct is_vector<std::vector<T, A>> : public st
 
 namespace rungekutta { //generic class, can take complex numbers etc
 
+	template<typename Number, typename Number1, typename Index, typename FN, typename ...Args> ///FN is a type that takes t, ...args and returns tuple
+	auto compute_efficient_2d(const Number1& t, const Index& numSteps, FN&& fn, std::vector<Number>&& initialValues){
+		auto h=t/numSteps;
+		auto hlfh=h*.5;
+		auto sixthh=h/6.0;
+		auto fnc=[fn=std::move(fn)](const auto& t, const auto& h, const auto& hlfh, const auto& vals){
+			auto firstResult=fn(t, vals[0], vals[1]);
+			auto secondResult=fn(t+hlfh, vals[0]+firstResult[0]*hlfh, vals[1]+firstResult[1]*hlfh);
+			auto thirdResult=fn(t+hlfh, vals[0]+secondResult[0]*hlfh, vals[1]+secondResult[1]*hlfh);
+			auto fourthResult=fn(t+h, vals[0]+thirdResult[0]*h, vals[1]+thirdResult[1]*h);
+		};
+		return futilities::recurse_move(numSteps, std::move(initialValues), [&](const auto& val, const auto& index){
+			return fnc(index*h, h, hlfh, val);
+		});
+
+	}
+
 	template<typename Number, typename Number1, typename Index, typename FN>
 	std::vector<Number> computeFunctional_move(const Number1& t, const Index& numSteps, std::vector<Number>&& initialValues, FN&& fn, std::true_type){
 		auto h=t/numSteps;
